@@ -1,0 +1,41 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#block-confirmation {
+    text-align: center;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 40px 30px;
+    max-width: 400px;
+    width: 90%;
+}
+
+#succes {
+    font-size: 28px;
+    color: #28a745;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+#crochet img {
+    width: 80px;
+    height: 80px;
+    margin: 20px 0;
+}
+
+#message-confirmation {
+    font-size: 16px;
+    color: #333;
+    margin-top: 10px;
+}
+
+#remerciements {
+    font-size: 20px;
+    color: #333;
+    margin-top: 10px;
+}
