@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="titre-formulaire">Section Personnalitée</h1>
+<h2 class="sous-titre-formulaire">Répondez selon ce que vous êtes et non comme vous souhaiteriez être.</h2>
+<form method="post" action="{{ url_for('soumettre') }}" id="formulaire_test">
+    {% for section_index in range(4) %}
+        <div class="section" id="section{{ section_index + 1 }}" {% if section_index > 0 %}style="display: none;"{% endif %}>
+            <h2>Section {{ section_index + 1 }}</h2>
+            {% for i in range(section_index * 5, (section_index + 1) * 5) %}
+                <p><strong>Question {{ i + 1 }}:</strong> {{ questions[i] }}</p>
+                {% for option in ["Jamais", "Rarement", "Parfois", "Souvent", "Toujours"] %}
+                    <label>
+                        <input type="radio" name="q{{ i + 1 }}" value="{{ option }}" required> {{ option }}
+                    </label>
+                {% endfor %}
+                <br><br>
+            {% endfor %}
+        </div>
+    {% endfor %}
+    <input type="submit" value="Envoyer">
+</form>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+<script src="{{ url_for('static', filename='js/form_test.js') }}"></script>
+{% endblock %}

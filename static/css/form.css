@@ -88,3 +88,50 @@ input[type="radio"]:checked + .toggle_non {
     color: white;
 }
 
+.toggle_homme {
+    border-color: blue;
+    color: blue;
+}
+
+input[type="radio"]:checked + .toggle_homme {
+    background-color: blue;
+    color: white;
+}
+
+.toggle_femme {
+    border-color: fuchsia;
+    color: fuchsia;
+}
+
+input[type="radio"]:checked + .toggle_femme {
+    background-color: fuchsia;
+    color: white;
+}
+
+form input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border: 1px solid #dcdde1;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.titre-formulaire {
+    font-size: 32px;
+    color: white;
+    text-align: center;
+    margin-bottom: 10px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.sous-titre-formulaire {
+    font-size: 20px;
+    color: #f5f6fa;
+    text-align: center;
+    font-weight: 400;
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}

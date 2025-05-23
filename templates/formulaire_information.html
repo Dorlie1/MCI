@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="formulaire-container" data-formulaire-test-url="{{ url_for('formulaire_test') }}"></div>
+<form action="{{ url_for('soumettre') }}" method="post">
+    <label for="prenom">Prenom</label>
+    <input type="text" id="prenom" name="prenom" required>
+
+    <label for="nom">Nom de Famille</label>
+    <input type="text" id="nom" name="nom" required>
+
+    <label for="courriel">Adresse Courriel</label>
+    <input type="text" id="courriel" name="courriel" required>
+
+    <label for="courriel_confirm">Confirmez votre Adresse Courriel</label>
+    <input type="text" id="courriel_confirm" name="courriel_confirm" required>
+
+    <label for="date_naissance">Date de naissance :</label>
+    <input type="date" id="date_naissance" name="date_naissance" required>
+
+    <p>Genre</p>
+    <div class="toggle-group">
+        <input type="radio" id="homme" name="genre" value="Homme" required>
+        <label for="homme" class="toggle toggle_homme">Homme</label>
+
+        <input type="radio" id="femme" name="genre" value="Femme" required>
+        <label for="femme" class="toggle toggle_femme">Femme</label>
+    </div>
+
+    <p>Vous souvenez-vous de votre date de salut ?</p>
+    <div class="toggle-group">
+        <input type="radio" id="date_salut_oui" name="date_salut" value="oui" required>
+        <label for="date_salut_oui" class="toggle toggle_oui">Oui</label>
+
+        <input type="radio" id="date_salut_non" name="date_salut" value="non" required>
+        <label for="date_salut_non" class="toggle toggle_non">Non</label>
+    </div>
+
+    <div id="date_salut"></div>
+
+    <p>Êtes-vous baptisé(e) par immersion ?</p>
+    <div class="toggle-group">
+        <input type="radio" id="baptise_oui" name="baptise" value="oui" required>
+        <label for="baptise_oui" class="toggle toggle_oui">Oui</label>
+
+        <input type="radio" id="baptise_non" name="baptise" value="non" required>
+        <label for="baptise_non" class="toggle toggle_non">Non</label>
+    </div>
+
+
+    <div id="souvenir_date_bapteme"></div>
+
+    <div id="date_bapteme"></div>
+
+
+    <label for="etat_matrimonial">État matrimonial</label> <br>
+    <select id="etat_matrimonial">
+        <option value="nul">--Selectionner</option>
+        <option value="Marié(e)">Marié(e)</option>
+        <option value="Célibataire">Célibataire</option>
+        <option value="Conjoint(e)">Conjoint(e) de fait</option>
+        <option value="Séparé(e)">Séparé(e)</option>
+        <option value="Divorcé(e)">Divorcé(e)</option>
+        <option value="Veuf/Veuve">Veuf/Veuve</option>
+    </select> <br><br>
+
+    <input type="submit" value="Suivant">
+</form>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">    
+<script src="{{ url_for('static', filename='js/form_information.js') }}"></script>
+{% endblock %}

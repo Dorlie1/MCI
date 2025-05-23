@@ -1,0 +1,65 @@
+/* Container principal centré avec un max-width */
+.container.special-container {
+    max-width: 600px;
+    margin: 80px auto;
+    padding: 20px;
+    background-color: #f7f7f7;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* En-tête avec image et titre */
+.header {
+    margin-bottom: 25px;
+}
+
+.gif-404 {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.page-title.special-title {
+    font-size: 3rem;
+    color: #8a2be2; /* Une couleur violette douce pour rappeler Rebeccapurple */
+    margin: 0;
+}
+
+/* Texte de contenu */
+.content.special-content h2 {
+    font-size: 1.5rem;
+    color: #333333;
+    margin-bottom: 30px;
+}
+
+/* Groupe de boutons */
+.button-group {
+    margin-top: 10px;
+}
+
+/* Bouton principal */
+.button-primary {
+    background-color: #8a2be2;
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+}
+
+.button-primary:hover {
+    background-color: #6a1ab8;
+}
+
+/* Centrage du contenu */
+.center-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

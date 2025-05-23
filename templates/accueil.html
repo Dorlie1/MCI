@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="formulaire-container" data-formulaire-info-url="{{ url_for('formulaire_info') }}"></div>
+    <div class="container">
+        <h1>Accès Protégé</h1>
+        <form id="password-form">
+            <label for="password">Entrez le mot de passe :</label>
+            <input type="password" id="password" required>
+            <button type="submit">Valider</button>
+        </form>
+        <p id="error" class="error-message"></p>
+    </div>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/accueil.css') }}">
+<script src="{{ url_for('static', filename='js/accueil.js') }}"></script>
+{% endblock %}
