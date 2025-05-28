@@ -1,6 +1,12 @@
 email:
-  recipient: "ferenttheodor@gmail.com"
   smtp_server: "smtp.gmail.com"
   smtp_port: 465
-  username: "ferenttheodor@gmail.com"
-  password: "aphb bitp ucwk ljyo"
+  username: "mcidecouverte@gmail.com"
+  password: "DidiPolo2025"
+  sender_name: "MCI Canada"
+  sender_email: "mcidecouverte@gmail.com"
+  admin_recipients:
+    - email: "mci360@mcigc.ca"
+      name: "MCI Admin"
+    - email: "placer@mcigc.ca"
+      name: "MCI Placer"
