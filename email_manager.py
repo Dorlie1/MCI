@@ -6,9 +6,10 @@ import yaml
 from datetime import datetime
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, landscape
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
+from reportlab.lib.colors import HexColor
 import os
 
 class EmailManager:
@@ -23,6 +24,44 @@ class EmailManager:
         scores_text = "\n".join([f"{trait}: {score}/25" for trait, score in personality_scores.items()])
         type_text = ", ".join(personality_type) if isinstance(personality_type, list) else personality_type
         return f"Résultats du test DISC:\n\n{scores_text}\n\nType de personnalité dominant: {type_text}"
+
+    def _create_custom_styles(self):
+        styles = getSampleStyleSheet()
+        
+        # Custom title style
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=24,
+            textColor=HexColor('#2C3E50'),  # Dark blue-grey
+            spaceAfter=30,
+            alignment=1  # Center alignment
+        )
+        
+        # Custom heading style
+        heading_style = ParagraphStyle(
+            'CustomHeading',
+            parent=styles['Heading2'],
+            fontSize=18,
+            textColor=HexColor('#34495E'),  # Lighter blue-grey
+            spaceAfter=15,
+            spaceBefore=25
+        )
+        
+        # Custom normal style
+        normal_style = ParagraphStyle(
+            'CustomNormal',
+            parent=styles['Normal'],
+            fontSize=12,
+            textColor=HexColor('#2C3E50'),
+            spaceAfter=12
+        )
+        
+        return {
+            'title': title_style,
+            'heading': heading_style,
+            'normal': normal_style
+        }
 
     def _create_pdf(self, form_data):
         # Create a temporary PDF file
@@ -39,48 +78,83 @@ class EmailManager:
             bottomMargin=72
         )
 
-        # Get styles
-        styles = getSampleStyleSheet()
-        title_style = styles['Heading1']
-        normal_style = styles['Normal']
+        # Get custom styles
+        styles = self._create_custom_styles()
         
         # Create the story (content)
         story = []
         
-        # Add title
-        story.append(Paragraph("Résultats des Tests - MCI Canada", title_style))
-        story.append(Spacer(1, 30))
+        # Add title with date
+        title_text = f"Résultats des Tests - MCI Canada\n{datetime.now().strftime('%d/%m/%Y')}"
+        story.append(Paragraph(title_text, styles['title']))
         
-        # Add personality test results
-        story.append(Paragraph("Résultats du Test DISC", styles['Heading2']))
-        story.append(Spacer(1, 12))
+        # Add personality test results section
+        story.append(Paragraph("Profil de Personnalité DISC", styles['heading']))
         
-        # Create table for personality scores
-        scores_data = [[Paragraph("Trait", normal_style), Paragraph("Score", normal_style)]]
+        # Description of DISC
+        disc_description = """
+        Le modèle DISC est un outil d'évaluation du comportement qui aide à mieux comprendre votre style naturel 
+        de communication et d'interaction. Chaque lettre représente une dimension différente du comportement :
+        <br/><br/>
+        <b>D</b> - Dominance : Comment vous réagissez aux défis<br/>
+        <b>I</b> - Influence : Comment vous interagissez avec les autres<br/>
+        <b>S</b> - Stabilité : Comment vous réagissez au changement<br/>
+        <b>C</b> - Conformité : Comment vous réagissez aux règles
+        """
+        story.append(Paragraph(disc_description, styles['normal']))
+        story.append(Spacer(1, 20))
+        
+        # Create table for personality scores with improved styling
+        scores_data = [
+            [Paragraph('<b><font color="white">Dimension</font></b>', styles['normal']), 
+             Paragraph('<b><font color="white">Score</font></b>', styles['normal']), 
+             Paragraph('<b><font color="white">Interprétation</font></b>', styles['normal'])]
+        ]
+        
+        # Function to get interpretation based on score
+        def get_interpretation(score):
+            if score >= 20:
+                return "Très élevé"
+            elif score >= 15:
+                return "Élevé"
+            elif score >= 10:
+                return "Modéré"
+            else:
+                return "Faible"
+        
         for trait, score in form_data['personality_scores'].items():
-            scores_data.append([Paragraph(trait, normal_style), Paragraph(f"{score}/25", normal_style)])
+            scores_data.append([
+                Paragraph(trait, styles['normal']),
+                Paragraph(f"{score}/25", styles['normal']),
+                Paragraph(get_interpretation(score), styles['normal'])
+            ])
         
-        scores_table = Table(scores_data, colWidths=[4*inch, 2*inch])
+        scores_table = Table(scores_data, colWidths=[2.5*inch, 1.5*inch, 2*inch])
         scores_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            # Header styling
+            ('BACKGROUND', (0, 0), (-1, 0), HexColor('#34495E')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            # Alternating row colors
+            ('BACKGROUND', (0, 1), (-1, -1), HexColor('#F8F9F9')),
+            ('BACKGROUND', (0, 2), (-1, 2), HexColor('#EBF5FB')),
+            ('BACKGROUND', (0, 3), (-1, 3), HexColor('#F8F9F9')),
+            ('BACKGROUND', (0, 4), (-1, 4), HexColor('#EBF5FB')),
+            # Global styling
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 0), (-1, 0), 14),
             ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -1), 12),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ('TOPPADDING', (0, 0), (-1, 0), 12),
+            ('GRID', (0, 0), (-1, -1), 1, HexColor('#BDC3C7')),
+            ('ROWHEIGHT', (0, 0), (-1, -1), 30)
         ]))
         story.append(scores_table)
-        story.append(Spacer(1, 20))
+        story.append(Spacer(1, 30))
         
-        # Add personality type
+        # Add a personality type with improved styling
         type_text = ", ".join(form_data['personality_type']) if isinstance(form_data['personality_type'], list) else form_data['personality_type']
-        story.append(Paragraph(f"Type de personnalité dominant: {type_text}", styles['Heading2']))
+        story.append(Paragraph("Votre Type de Personnalité Dominant", styles['heading']))
+        story.append(Paragraph(f"<b>{type_text}</b>", styles['normal']))
         
         # Build the PDF
         doc.build(story)
@@ -99,7 +173,7 @@ class EmailManager:
         
         msg['Subject'] = "Vos résultats des tests de personnalité et de dons"
 
-        # Create email body
+        # Create an email body
         body = f"""
 Bonjour,
 
