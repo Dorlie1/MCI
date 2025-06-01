@@ -11,19 +11,68 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib.colors import HexColor
 import os
+from db.databse import Database
 
 class EmailManager:
     def __init__(self):
         self.config_path = "config.yaml"
+        self.db = Database()
 
     def load_config(self):
         with open(self.config_path, "r", encoding='utf-8') as f:
             return yaml.safe_load(f)["email"]
 
+    def _get_roles_for_traits(self, traits):
+        all_roles = self.db.get_all_roles()
+        matching_roles = {}
+        
+        # Map full trait names to codes
+        trait_map = {
+            'Dominance': 'D',
+            'Influence': 'I',
+            'Stabilité': 'S',
+            'Sérieux': 'C'  # Assuming "Sérieux" corresponds to "Conformité"
+        }
+        
+        # Convert full trait names to codes
+        trait_codes = [trait_map[trait] for trait in traits if trait in trait_map]
+        
+        # Initialize dictionary with region keys
+        for role in all_roles:
+            if role['region'] not in matching_roles:
+                matching_roles[role['region']] = []
+        
+        # Add roles that match the traits
+        for role in all_roles:
+            if role['trait'] in trait_codes:
+                matching_roles[role['region']].append(role['nom'])
+        
+        return matching_roles
+
     def _format_personality_results(self, personality_scores, personality_type):
+        # Format the DISC scores
         scores_text = "\n".join([f"{trait}: {score}/25" for trait, score in personality_scores.items()])
+        
+        # Get the dominant traits (those with score >= 15)
+        dominant_traits = [trait for trait, score in personality_scores.items() if score >= 15]
+        
+        # Get matching roles for the dominant traits
+        matching_roles = self._get_roles_for_traits(dominant_traits)
+        
+        # Format the roles by region
+        roles_text = "\n\nRôles recommandés basés sur votre profil:\n"
+        for region, roles in matching_roles.items():
+            if roles:  # Only show regions that have matching roles
+                roles_text += f"\n{region}:\n"
+                roles_text += "\n".join(f"- {role}" for role in roles)
+        
+        # Combine all parts
         type_text = ", ".join(personality_type) if isinstance(personality_type, list) else personality_type
-        return f"Résultats du test DISC:\n\n{scores_text}\n\nType de personnalité dominant: {type_text}"
+        return f"""Résultats du test DISC:
+
+{scores_text}
+
+Type de personnalité dominant: {type_text}{roles_text}"""
 
     def _create_custom_styles(self):
         styles = getSampleStyleSheet()
@@ -151,10 +200,38 @@ class EmailManager:
         story.append(scores_table)
         story.append(Spacer(1, 30))
         
-        # Add a personality type with improved styling
+        # Add personality type and role recommendations
         type_text = ", ".join(form_data['personality_type']) if isinstance(form_data['personality_type'], list) else form_data['personality_type']
         story.append(Paragraph("Votre Type de Personnalité Dominant", styles['heading']))
         story.append(Paragraph(f"<b>{type_text}</b>", styles['normal']))
+        
+        # Add role recommendations
+        story.append(Paragraph("Rôles Recommandés", styles['heading']))
+        
+        # Get dominant traits and matching roles
+        dominant_traits = [trait for trait, score in form_data['personality_scores'].items() if score >= 15]
+        matching_roles = self._get_roles_for_traits(dominant_traits)
+        
+        # Create a table for role recommendations
+        roles_data = []
+        for region, roles in matching_roles.items():
+            if roles:  # Only show regions that have matching roles
+                roles_data.append([
+                    Paragraph(f"<b>{region}</b>", styles['normal']),
+                    Paragraph("<br/>".join([f"• {role}" for role in roles]), styles['normal'])
+                ])
+        
+        if roles_data:
+            roles_table = Table(roles_data, colWidths=[2*inch, 5*inch])
+            roles_table.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
+                ('ALIGN', (1, 0), (1, -1), 'LEFT'),
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                ('GRID', (0, 0), (-1, -1), 1, HexColor('#BDC3C7')),
+                ('BACKGROUND', (0, 0), (-1, -1), HexColor('#F8F9F9')),
+                ('PADDING', (0, 0), (-1, -1), 12),
+            ]))
+            story.append(roles_table)
         
         # Build the PDF
         doc.build(story)
