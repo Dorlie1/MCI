@@ -151,7 +151,7 @@ class EmailManager:
         matching_roles = self._get_roles_for_traits(dominant_traits)
         
         # Format the roles by region
-        roles_text = "\n\nRôles recommandés basés sur votre profil:\n"
+        roles_text = "\n\nÉquipes recommandées basés sur votre profil:\n"
         for region, roles in matching_roles.items():
             if roles:  # Only show regions that have matching roles
                 roles_text += f"\n{region}:\n"
@@ -297,7 +297,7 @@ Type de personnalité dominant: {type_text}{roles_text}"""
         story.append(Paragraph(f"<b>{type_text}</b>", styles['normal']))
         
         # Add role recommendations
-        story.append(Paragraph("Rôles Recommandés", styles['heading']))
+        story.append(Paragraph("Équipes Recommandées", styles['heading']))
         
         # Get dominant traits and matching roles
         dominant_traits = [trait for trait, score in form_data['personality_scores'].items() if score >= 15]

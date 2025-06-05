@@ -1,6 +1,6 @@
 {% extends "admin/base_admin.html" %}
 
-{% block title %}Gestion des Rôles{% endblock %}
+{% block title %}Gestion des Équipes{% endblock %}
 
 {% block styles %}
 <link href="{{ url_for('static', filename='css/admin.css') }}" rel="stylesheet">
@@ -8,7 +8,7 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="mb-4">Gestion des Rôles</h1>
+    <h1 class="mb-4">Gestion des Équipes</h1>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
