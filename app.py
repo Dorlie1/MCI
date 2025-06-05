@@ -6,6 +6,7 @@ from functools import wraps
 import os
 
 app = Flask(__name__)
+# Not the correct key, its for git
 app.secret_key = os.urandom(24)
 db = Database()
 
