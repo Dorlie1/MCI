@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="titre-formulaire">Section Dons Spirituels</h1>
+<h2 class="sous-titre-formulaire">Répondez honnêtement à chaque question selon ce que vous êtes.</h2>
+<form method="post" action="{{ url_for('soumettre') }}" id="formulaire_don">
+    {% for i in range(don_questions|length) %}
+        <p><strong>Question {{ i + 1 }}:</strong> {{ don_questions[i] }}</p>
+        {% for option in ["Pas du tout", "Parfois", "Souvent", "Toujours"] %}
+            <label>
+                <input type="radio" name="d{{ i + 1 }}" value="{{ option }}" required> {{ option }}
+            </label>
+        {% endfor %}
+        <br><br>
+    {% endfor %}
+    <input type="submit" value="Envoyer">
+</form>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+<script src="{{ url_for('static', filename='js/form_don.js') }}"></script>
+{% endblock %}

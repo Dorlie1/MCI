@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div id="formulaire-container" data-formulaire-Don-url="{{ url_for('formulaire_don') }}"></div>
 <h1 class="titre-formulaire">Section Personnalitée</h1>
 <h2 class="sous-titre-formulaire">Répondez selon ce que vous êtes et non comme vous souhaiteriez être.</h2>
 <form method="post" action="{{ url_for('soumettre') }}" id="formulaire_test">
@@ -11,14 +12,14 @@
                 <p><strong>Question {{ i + 1 }}:</strong> {{ questions[i] }}</p>
                 {% for option in ["Jamais", "Rarement", "Parfois", "Souvent", "Toujours"] %}
                     <label>
-                        <input type="radio" name="q{{ i + 1 }}" value="{{ option }}" required> {{ option }}
+                        <input type="radio" name="p{{ i + 1 }}" value="{{ option }}" required> {{ option }}
                     </label>
                 {% endfor %}
                 <br><br>
             {% endfor %}
         </div>
     {% endfor %}
-    <input type="submit" value="Envoyer">
+    <input type="submit" value="Suivant">
 </form>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">

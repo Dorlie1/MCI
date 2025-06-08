@@ -23,11 +23,11 @@
     {% for region in roles_by_region %}
     <div class="region-section">
         <h2 class="mb-3">{{ region.name }}</h2>
-        {% for trait in region.traits %}
+        {% for don in region.dons %}
         <div class="trait-section">
-            <h3>{{ trait.description }} ({{ trait.code }})</h3>
+            <h3>{{ don.nom }} ({{ don.code }})</h3>
             <div class="list-group">
-                {% for role in trait.roles %}
+                {% for role in don.roles %}
                 <div class="list-group-item d-flex justify-content-between align-items-center">
                     {{ role.nom }}
                     <form method="POST" action="{{ url_for('delete_role') }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce rôle?');">
@@ -40,7 +40,7 @@
             <div class="add-role-form">
                 <form method="POST" action="{{ url_for('add_role') }}" class="row g-3">
                     <input type="hidden" name="region_id" value="{{ region.id }}">
-                    <input type="hidden" name="trait_id" value="{{ trait.id }}">
+                    <input type="hidden" name="don_id" value="{{ don.id }}">
                     <div class="col-auto flex-grow-1">
                         <input type="text" class="form-control" name="role_name" placeholder="Nouveau rôle" required>
                     </div>

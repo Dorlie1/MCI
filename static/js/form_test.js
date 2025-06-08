@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("formulaire_test");
     const totalSections = 4;
+    const formulaireDonUrl = document.getElementById("formulaire-container").dataset.formulaireDonUrl;
 
     // Gérer l'affichage progressif des sections
     for (let i = 1; i <= totalSections; i++) {
@@ -25,21 +26,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Gérer la soumission
     form.addEventListener("submit", (e) => {
-        // Charger les données de la première partie depuis sessionStorage
-        const partie1 = JSON.parse(sessionStorage.getItem("formulaire_partie1")) || {};
+        e.preventDefault();
 
-        // Ajouter dynamiquement les champs cachés de la partie 1
-        Object.entries(partie1).forEach(([key, value]) => {
-            const hidden = document.createElement("input");
-            hidden.type = "hidden";
-            hidden.name = key;
-            hidden.value = String(value);
-            form.appendChild(hidden);
-            console.log("clé:", key, "→", "valeur:", value);
-        });
+        const testData = {};
+        for (let i = 1; i <= 21; i++) {
+            const val = form.querySelector(`input[name="p${i}"]:checked`);
+            if (val) testData[`p${i}`] = val.value;
+        }
+        sessionStorage.setItem("formulaire_partie2", JSON.stringify(testData));
 
-        // Nettoyer sessionStorage (facultatif)
-        sessionStorage.removeItem("formulaire_partie1");
-
+        window.location.href = formulaireDonUrl;
     });
 });

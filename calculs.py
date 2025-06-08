@@ -104,7 +104,7 @@ def process_form_data(form_data):
     # Convert form data to the expected format
     answers = {}
     for i in range(1, 21):
-        form_key = f"q{i}"
+        form_key = f"p{i}"
         if form_key in form_data:
             answers[f"p{i}"] = value_map[form_data[form_key]]
     
@@ -113,4 +113,60 @@ def process_form_data(form_data):
     return {
         "scores": assessment.scores,
         "personality_type": assessment.get_personality_type()
+    }
+
+class DonAssessment:
+    def __init__(self):
+        self.scores = {chr(ord('A') + i): 0 for i in range(14)}  # 'A' to 'N'
+
+    def calculate_scores(self, answers):
+        # Each don has 8 questions, e.g., A: d1, d15, d29, ..., d99
+        for idx, don in enumerate(self.scores.keys()):
+            self.scores[don] = sum(
+                answers.get(f"d{q}", 0) for q in [
+                    1 + idx, 15 + idx, 29 + idx, 43 + idx, 57 + idx, 71 + idx, 85 + idx, 99 + idx
+                ]
+            )
+
+    def get_top_dons(self):
+        sorted_scores = sorted(self.scores.items(), key=lambda x: x[1], reverse=True)
+        top_score = sorted_scores[0][1]
+        dons_grand = [k for k, v in self.scores.items() if v == top_score]
+        # Get top 2 unique scores
+        unique_scores = sorted(set(self.scores.values()), reverse=True)
+        dons = []
+        for score in unique_scores[:2]:
+            dons += [k for k, v in self.scores.items() if v == score]
+        return dons, dons_grand
+
+def process_don_form_data(form_data):
+    """
+    Process the don form data and return don assessment results.
+    Args:
+        form_data: Flask form data containing don questionnaire answers
+        with keys 'd1' through 'd112' and values being one of:
+        'Pas du tout', 'Parfois', 'Souvent', 'Toujours'
+    Returns:
+        dict: Dictionary containing don scores, dons, and grandDon
+    """
+    assessment = DonAssessment()
+    # Map French responses to numeric values
+    value_map = {
+        'Pas du tout': 0,
+        'Parfois': 1,
+        'Souvent': 2,
+        'Toujours': 3
+    }
+    # Convert form data to the expected format
+    answers = {}
+    for i in range(1, 113):
+        form_key = f"d{i}"
+        if form_key in form_data:
+            answers[form_key] = value_map[form_data[form_key]]
+    assessment.calculate_scores(answers)
+    dons, dons_grand = assessment.get_top_dons()
+    return {
+        "don_scores": assessment.scores,
+        "dons": dons,
+        "dons_grand": dons_grand
     }

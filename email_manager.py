@@ -103,6 +103,18 @@ class EmailManager:
                 matching_roles[role['region']].append(role['nom'])
         
         return matching_roles
+    
+    def _get_roles_for_dons(self, dons):
+        all_roles = self.db.get_all_roles_with_don()
+        matching_roles = {}
+
+        for role in all_roles:
+            if role['don_code'] in dons:
+                region = role['region']
+                if region not in matching_roles:
+                    matching_roles[region] = []
+                matching_roles[region].append(role['nom'])
+        return matching_roles
 
     def get_disc_message(self, personality_types):
         """
@@ -136,34 +148,38 @@ class EmailManager:
             key = None
 
         if key and key in DISC_MESSAGES:
-            return "Voici la description :\n\n" + DISC_MESSAGES[key]
+            return "Voici votre type de personnalité DISC :\n\n" + DISC_MESSAGES[key]
         else:
             return ""
 
-    def _format_personality_results(self, personality_scores, personality_type):
-        # Format the DISC scores
-        scores_text = "\n".join([f"{trait}: {score}/25" for trait, score in personality_scores.items()])
-        
-        # Get the dominant traits (those with score >= 15)
-        dominant_traits = [trait for trait, score in personality_scores.items() if score >= 15]
-        
-        # Get matching roles for the dominant traits
-        matching_roles = self._get_roles_for_traits(dominant_traits)
-        
-        # Format the roles by region
-        roles_text = "\n\nÉquipes recommandées basés sur votre profil:\n"
+    def _format_don_results(self, don_scores, dons, dons_grand):
+        # Récupère le mapping code -> nom
+        code_to_name = self.db.get_don_code_to_name()
+
+        # Format the don scores with names
+        scores_text = "\n".join([f"{code_to_name.get(don, don)}: {score}" for don, score in don_scores.items()])
+
+        dons_input = dons_grand if dons_grand else dons
+        if isinstance(dons_input, str):
+            dons_input = [dons_input]
+
+        # Utilise les noms pour les dons principaux
+        dons_text = ", ".join([code_to_name.get(don, don) for don in dons_grand]) if dons_grand else ", ".join([code_to_name.get(don, don) for don in dons])
+
+        # Le reste de ta fonction reste inchangé
+        matching_roles = self._get_roles_for_dons(dons_input)
+        roles_text = "\n\nÉquipes recommandées basées sur vos dons:\n"
         for region, roles in matching_roles.items():
-            if roles:  # Only show regions that have matching roles
+            if roles:
                 roles_text += f"\n{region}:\n"
                 roles_text += "\n".join(f"- {role}" for role in roles)
-        
-        # Combine all parts
-        type_text = ", ".join(personality_type) if isinstance(personality_type, list) else personality_type
-        return f"""Résultats du test DISC:
+
+        return f"""Résultats du test des dons:
+
+Dons principaux: {dons_text}
 
 {scores_text}
-
-Type de personnalité dominant: {type_text}{roles_text}"""
+{roles_text}"""
 
     def _create_custom_styles(self):
         styles = getSampleStyleSheet()
@@ -299,9 +315,13 @@ Type de personnalité dominant: {type_text}{roles_text}"""
         # Add role recommendations
         story.append(Paragraph("Équipes Recommandées", styles['heading']))
         
-        # Get dominant traits and matching roles
-        dominant_traits = [trait for trait, score in form_data['personality_scores'].items() if score >= 15]
-        matching_roles = self._get_roles_for_traits(dominant_traits)
+        # Get good roles for the dons
+        dons_input = form_data['dons_grand'] if form_data['dons_grand'] else form_data['dons']
+        if isinstance(dons_input, str):
+            dons_input = [dons_input]
+        matching_roles = self._get_roles_for_dons(dons_input)
+        don_results_text = self._format_don_results(form_data['don_scores'], dons_input, form_data['dons_grand'])
+
         
         # Create a table for role recommendations
         roles_data = []
@@ -331,6 +351,10 @@ Type de personnalité dominant: {type_text}{roles_text}"""
 
     def send_email(self, form_data):
         config = self.load_config()
+
+        dons_input = form_data['dons_grand'] if form_data['dons_grand'] else form_data['dons']
+        if isinstance(dons_input, str):
+            dons_input = [dons_input]
         
         msg = MIMEMultipart()
         msg['From'] = f"{config['sender_name']} <{config['sender_email']}>"
@@ -347,13 +371,19 @@ Bonjour,
 
 Merci d'avoir complété les tests de personnalité et de dons.
 
-{self._format_personality_results(form_data['personality_scores'], form_data['personality_type'])}
+{self._format_don_results(form_data['don_scores'], dons_input, form_data['dons_grand'])}
 
 N'hésitez pas à poser vos questions lors du cours.
 
 Cordialement,
 L'équipe MCI Canada
         """
+
+        don_descs = self.db.get_don_descriptions(form_data['dons_grand'] if form_data['dons_grand'] else form_data['dons'])
+        if don_descs:
+            body += "\n\nDescriptions de vos dons principaux :\n"
+            for nom, desc in don_descs:
+                body += f"\n{nom} :\n{desc}\n"
 
         message = self.get_disc_message(form_data['personality_type'])
         if message:
