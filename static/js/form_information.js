@@ -127,11 +127,14 @@ document.addEventListener("DOMContentLoaded", function () {
             courriel: courriel.value,
             date_naissance: document.getElementById("date_naissance")?.value || "",
             genre: document.querySelector('input[name="genre"]:checked')?.value || "",
+            date_salut: document.querySelector('input[name="date_salut"]:checked')?.value || "",
             date_du_salut: document.getElementById("date_du_salut")?.value || "",
             baptise: document.querySelector('input[name="baptise"]:checked')?.value || "",
             souvenir_bapteme: document.querySelector('input[name="souvenir_bapteme"]:checked')?.value || "",
             date_du_bapteme: document.getElementById("date_du_bapteme")?.value || "",
             etat_matrimonial: document.getElementById("etat_matrimonial").value,
+            disponibilite: document.getElementById("disponibilite").value,
+            precision: document.getElementById("precision").value,
         };
 
         sessionStorage.setItem("formulaire_partie1", JSON.stringify(data));
